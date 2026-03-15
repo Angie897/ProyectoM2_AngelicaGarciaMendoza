@@ -1,0 +1,437 @@
+openapi: 3.0.0
+info:
+  title: MiniBlog API
+  description: API REST para gestionar autores y publicaciones de blog
+  version: 1.0.0
+  contact:
+    name: Angelica García Mendoza
+    email: angie@devspark.com
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desarrollo
+  - url: https://miniblog-api-production.up.railway.app
+    description: Servidor de producción (Railway)
+
+tags:
+  - name: Authors
+    description: Operaciones sobre autores
+  - name: Posts
+    description: Operaciones sobre publicaciones
+
+paths:
+  /authors:
+    get:
+      tags:
+        - Authors
+      summary: Listar todos los autores
+      description: Obtiene la lista completa de autores registrados
+      responses:
+        '200':
+          description: Lista de autores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+    
+    post:
+      tags:
+        - Authors
+      summary: Crear un nuevo autor
+      description: Crea un nuevo autor en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  example: Jane Doe
+                email:
+                  type: string
+                  format: email
+                  example: jane@example.com
+                bio:
+                  type: string
+                  example: Software developer and technical writer
+      responses:
+        '201':
+          description: Autor creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /authors/{id}:
+    get:
+      tags:
+        - Authors
+      summary: Obtener un autor por ID
+      description: Retorna los detalles de un autor específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del autor
+      responses:
+        '200':
+          description: Detalles del autor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Autor no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Authors
+      summary: Actualizar un autor
+      description: Actualiza la información de un autor existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del autor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                bio:
+                  type: string
+      responses:
+        '200':
+          description: Autor actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Autor no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Authors
+      summary: Eliminar un autor
+      description: Elimina un autor y todos sus posts asociados (CASCADE)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del autor
+      responses:
+        '204':
+          description: Autor eliminado exitosamente
+        '404':
+          description: Autor no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /posts:
+    get:
+      tags:
+        - Posts
+      summary: Listar todos los posts
+      description: Obtiene la lista completa de publicaciones
+      responses:
+        '200':
+          description: Lista de posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    
+    post:
+      tags:
+        - Posts
+      summary: Crear un nuevo post
+      description: Crea una nueva publicación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - author_id
+              properties:
+                title:
+                  type: string
+                  example: Mi primer post
+                content:
+                  type: string
+                  example: Este es el contenido de mi publicación
+                author_id:
+                  type: integer
+                  example: 1
+                published:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Post creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /posts/{id}:
+    get:
+      tags:
+        - Posts
+      summary: Obtener un post por ID
+      description: Retorna los detalles de una publicación específica
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del post
+      responses:
+        '200':
+          description: Detalles del post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Posts
+      summary: Actualizar un post
+      description: Actualiza la información de una publicación existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                published:
+                  type: boolean
+      responses:
+        '200':
+          description: Post actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Posts
+      summary: Eliminar un post
+      description: Elimina una publicación
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del post
+      responses:
+        '204':
+          description: Post eliminado exitosamente
+        '404':
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /posts/author/{authorId}:
+    get:
+      tags:
+        - Posts
+      summary: Obtener posts de un autor
+      description: Retorna todos los posts de un autor específico con JOIN (incluye datos del autor)
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del autor
+      responses:
+        '200':
+          description: Lista de posts con información del autor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostWithAuthor'
+
+components:
+  schemas:
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Angelica García
+        email:
+          type: string
+          format: email
+          example: angie@devspark.com
+        bio:
+          type: string
+          example: Backend developer apasionada por crear APIs eficientes
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-14T11:40:15.921Z
+    
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        author_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Mi primer post en MiniBlog
+        content:
+          type: string
+          example: Este es mi primer post en la plataforma
+        published:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-14T11:40:15.932Z
+    
+    PostWithAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Mi primer post en MiniBlog
+        content:
+          type: string
+          example: Este es mi primer post en la plataforma
+        published:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-14T11:40:15.932Z
+        author_id:
+          type: integer
+          example: 1
+        author_name:
+          type: string
+          example: Angelica García
+        author_email:
+          type: string
+          example: angie@devspark.com
+        author_bio:
+          type: string
+          example: Backend developer apasionada por crear APIs eficientes
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Resource not found
