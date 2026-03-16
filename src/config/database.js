@@ -2,6 +2,11 @@ import pkg from 'pg';
 const { Pool } = pkg;
 import dotenv from 'dotenv';
 
+// Solo cargar .env en desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
+
 dotenv.config();
 
 const pool = new Pool({
