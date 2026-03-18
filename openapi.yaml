@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: MiniBlog API
-  description: API REST para gestionar autores y publicaciones de blog
+  description: API REST para gestionar autores, publicaciones y comentarios de blog
   version: 1.0.0
   contact:
     name: Angelica García Mendoza
@@ -10,7 +10,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Servidor de desarrollo
-  - url: https://miniblog-api-production.up.railway.app
+  - url: https://proyectom2angelicagarciamendoza-production.up.railway.app
     description: Servidor de producción (Railway)
 
 tags:
@@ -18,6 +18,8 @@ tags:
     description: Operaciones sobre autores
   - name: Posts
     description: Operaciones sobre publicaciones
+  - name: Comments
+    description: Operaciones sobre comentarios
 
 paths:
   /authors:
@@ -351,6 +353,199 @@ paths:
                 items:
                   $ref: '#/components/schemas/PostWithAuthor'
 
+  /comments:
+    get:
+      tags:
+        - Comments
+      summary: Listar todos los comentarios
+      description: Obtiene todos los comentarios con información del autor y post
+      responses:
+        '200':
+          description: Lista de comentarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentWithDetails'
+    
+    post:
+      tags:
+        - Comments
+      summary: Crear un nuevo comentario
+      description: Crea un comentario en un post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - post_id
+                - author_id
+                - content
+              properties:
+                post_id:
+                  type: integer
+                  example: 1
+                author_id:
+                  type: integer
+                  example: 2
+                content:
+                  type: string
+                  example: Excelente post, muy útil!
+      responses:
+        '201':
+          description: Comentario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Error de validación o post/autor no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /comments/{id}:
+    get:
+      tags:
+        - Comments
+      summary: Obtener un comentario por ID
+      description: Retorna los detalles de un comentario específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del comentario
+      responses:
+        '200':
+          description: Detalles del comentario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentWithDetails'
+        '404':
+          description: Comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Comments
+      summary: Actualizar un comentario
+      description: Actualiza el contenido de un comentario existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del comentario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Comentario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Comments
+      summary: Eliminar un comentario
+      description: Elimina un comentario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del comentario
+      responses:
+        '204':
+          description: Comentario eliminado exitosamente
+        '404':
+          description: Comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /comments/post/{postId}:
+    get:
+      tags:
+        - Comments
+      summary: Obtener comentarios de un post
+      description: Retorna todos los comentarios de un post específico
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del post
+      responses:
+        '200':
+          description: Lista de comentarios del post
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentByPost'
+
+  /comments/author/{authorId}:
+    get:
+      tags:
+        - Comments
+      summary: Obtener comentarios de un autor
+      description: Retorna todos los comentarios escritos por un autor
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del autor
+      responses:
+        '200':
+          description: Lista de comentarios del autor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentByAuthor'
+
 components:
   schemas:
     Author:
@@ -428,6 +623,95 @@ components:
         author_bio:
           type: string
           example: Backend developer apasionada por crear APIs eficientes
+    
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        post_id:
+          type: integer
+          example: 1
+        author_id:
+          type: integer
+          example: 2
+        content:
+          type: string
+          example: Excelente post, muy útil!
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-18T04:43:41.322Z
+    
+    CommentWithDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: Excelente post, muy útil!
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-18T04:43:41.322Z
+        post_id:
+          type: integer
+          example: 1
+        post_title:
+          type: string
+          example: Mi primer post en MiniBlog
+        author_id:
+          type: integer
+          example: 2
+        author_name:
+          type: string
+          example: Carlos Mendoza
+    
+    CommentByPost:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: Excelente post!
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-18T04:43:41.322Z
+        author_id:
+          type: integer
+          example: 2
+        author_name:
+          type: string
+          example: Carlos Mendoza
+        author_email:
+          type: string
+          example: carlos@devspark.com
+    
+    CommentByAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: Gran contenido
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-18T04:43:41.322Z
+        post_id:
+          type: integer
+          example: 2
+        post_title:
+          type: string
+          example: Aprendiendo PostgreSQL
     
     Error:
       type: object

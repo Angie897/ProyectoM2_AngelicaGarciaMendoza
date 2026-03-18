@@ -1,6 +1,6 @@
 # MiniBlog API
 
-API REST para gestionar autores y publicaciones de blog. Proyecto desarrollado con Node.js, Express y PostgreSQL.
+API REST para gestionar autores, publicaciones y comentarios de blog. Proyecto desarrollado con Node.js, Express y PostgreSQL.
 
 ## 🚀 Tecnologías
 
@@ -20,7 +20,7 @@ API REST para gestionar autores y publicaciones de blog. Proyecto desarrollado c
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <tu-repo-url>
+git clone https://github.com/Angie897/ProyectoM2_AngelicaGarciaMendoza.git
 cd miniblog-api
 ```
 
@@ -33,11 +33,7 @@ npm install
 
 Crea un archivo `.env` en la raíz del proyecto:
 ```env
-DB_USER=tu_usuario
-DB_HOST=localhost
-DB_NAME=miniblog
-DB_PASSWORD=tu_password
-DB_PORT=5432
+DATABASE_URL=postgresql://tu_usuario@localhost:5432/miniblog
 PORT=3000
 NODE_ENV=development
 ```
@@ -58,6 +54,9 @@ CREATE DATABASE miniblog;
 
 # Insertar datos de prueba
 \i sql/seed.sql
+
+# Crear tabla de comentarios
+\i sql/comments.sql
 
 # Salir
 \q
@@ -142,6 +141,22 @@ curl -X POST http://localhost:3000/posts \
   }'
 ```
 
+### Crear un comentario
+```bash
+curl -X POST http://localhost:3000/comments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "post_id": 1,
+    "author_id": 2,
+    "content": "Excelente post, muy útil!"
+  }'
+```
+
+### Obtener comentarios de un post
+```bash
+curl http://localhost:3000/comments/post/1
+```
+
 ## 🗄️ Estructura de la Base de Datos
 
 ### Tabla: authors
@@ -156,10 +171,19 @@ curl -X POST http://localhost:3000/posts \
 ### Tabla: posts
 ```sql
 - id (SERIAL PRIMARY KEY)
-- author_id (INTEGER NOT NULL, FK -> authors.id)
+- author_id (INTEGER NOT NULL, FK -> authors.id ON DELETE CASCADE)
 - title (VARCHAR(200) NOT NULL)
 - content (TEXT NOT NULL)
 - published (BOOLEAN DEFAULT false)
+- created_at (TIMESTAMP DEFAULT NOW())
+```
+
+### Tabla: comments
+```sql
+- id (SERIAL PRIMARY KEY)
+- post_id (INTEGER NOT NULL, FK -> posts.id ON DELETE CASCADE)
+- author_id (INTEGER NOT NULL, FK -> authors.id ON DELETE CASCADE)
+- content (TEXT NOT NULL)
 - created_at (TIMESTAMP DEFAULT NOW())
 ```
 
@@ -172,7 +196,7 @@ Ve a [railway.app](https://railway.app) y crea una cuenta.
 ### 2. Crear proyecto
 
 - New Project → Deploy from GitHub repo
-- Selecciona tu repositorio
+- Selecciona tu repositorio: `ProyectoM2_AngelicaGarciaMendoza`
 
 ### 3. Agregar PostgreSQL
 
@@ -181,32 +205,34 @@ Ve a [railway.app](https://railway.app) y crea una cuenta.
 
 ### 4. Configurar variables de entorno
 
-En tu servicio de Node.js, agrega:
+En tu servicio de Node.js, agrega estas variables:
 ```
-DB_USER=<del servicio PostgreSQL>
-DB_HOST=<del servicio PostgreSQL>
-DB_NAME=<del servicio PostgreSQL>
-DB_PASSWORD=<del servicio PostgreSQL>
-DB_PORT=<del servicio PostgreSQL>
-PORT=3000
+DATABASE_URL=${{Postgres.DATABASE_URL}}
 NODE_ENV=production
 ```
 
-Railway te proporcionará automáticamente las credenciales de PostgreSQL.
+Railway conectará automáticamente la variable `DATABASE_URL` del servicio PostgreSQL a tu aplicación.
 
 ### 5. Ejecutar migrations
 
-En Railway CLI o desde el dashboard, ejecuta:
+Conectarse a la base de datos de Railway usando la URL pública del servicio Postgres:
 ```bash
-psql $DATABASE_URL -f sql/setup.sql
-psql $DATABASE_URL -f sql/seed.sql
+psql <URL_PUBLICA_POSTGRES>
+```
+
+Luego ejecutar los scripts:
+```sql
+\i sql/setup.sql
+\i sql/seed.sql
+\i sql/comments.sql
+\q
 ```
 
 ### 6. Deploy
 
 Railway hace deploy automáticamente cuando haces push a tu rama principal.
 
-**URL pública:** Railway te asignará una URL como `https://tu-app.railway.app`
+**URL pública:** `https://proyectom2angelicagarciamendoza-production.up.railway.app`
 
 ## 📖 Documentación de la API
 
@@ -227,6 +253,7 @@ Este proyecto fue desarrollado con asistencia de Claude AI (Anthropic) para:
 - Configuración de ES Modules
 - Debugging y resolución de errores
 - Documentación del código y README
+- Implementación de la entidad Comments (créditos extra)
 
 ### Prompts utilizados:
 
@@ -234,13 +261,16 @@ Este proyecto fue desarrollado con asistencia de Claude AI (Anthropic) para:
 - "¿Por qué debo agregar .js en las importaciones de ES Modules?"
 - "¿Por qué usar `import pkg from 'pg'` en lugar de `import { Pool } from 'pg'`?"
 - "Ayúdame a estructurar un proyecto Express con arquitectura en capas"
+- "¿Qué son los middlewares y por qué la carpeta está vacía?"
+- "Explica qué son los Comments y para qué sirven en un blog"
 
 ## 👥 Autor
 
 **Angelica García Mendoza**
-- GitHub: [@angie897](https://github.com/angie897)
+- GitHub: [@Angie897](https://github.com/Angie897)
 - Proyecto: MiniBlog API
 - Escuela: DevSpark
+- Repositorio: [ProyectoM2_AngelicaGarciaMendoza](https://github.com/Angie897/ProyectoM2_AngelicaGarciaMendoza)
 
 ## 📄 Licencia
 
