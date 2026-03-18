@@ -105,6 +105,18 @@ npm test
 | PUT | `/posts/:id` | Actualizar un post |
 | DELETE | `/posts/:id` | Eliminar un post |
 
+### Comments
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/comments` | Listar todos los comentarios con autor y post |
+| GET | `/comments/:id` | Obtener un comentario por ID |
+| GET | `/comments/post/:postId` | Comentarios de un post específico |
+| GET | `/comments/author/:authorId` | Comentarios de un autor específico |
+| POST | `/comments` | Crear un nuevo comentario |
+| PUT | `/comments/:id` | Actualizar un comentario |
+| DELETE | `/comments/:id` | Eliminar un comentario |
+
 ## 📝 Ejemplos de Uso
 
 ### Crear un autor
