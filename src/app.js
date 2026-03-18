@@ -17,9 +17,11 @@ app.get('/', (req, res) => {
 // Rutas
 import authorsRoutes from './routes/authorsRoutes.js';
 import postsRoutes from './routes/postsRoutes.js';
+import commentsRoutes from './routes/commentsRoutes.js';
 
 app.use('/authors', authorsRoutes);
-app.use('/posts', postsRoutes); 
+app.use('/posts', postsRoutes);
+app.use('/comments', commentsRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
